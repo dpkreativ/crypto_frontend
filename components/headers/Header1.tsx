@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import logo from "../../assets/Group 220.png";
 import { notifications } from "@/data/notifications";
 import { useRouter } from "next/navigation";
 
@@ -26,12 +27,11 @@ export default function Header1({ coins }: HeaderProps) {
       setResults([]);
       return;
     }
-    const filtered = coins
-      .filter((coin) =>
-        Object.keys(coin.unique_id)[0]
-          .toLowerCase()
-          .includes(debouncedValue.toLowerCase())
-      );
+    const filtered = coins.filter((coin) =>
+      Object.keys(coin.unique_id)[0]
+        .toLowerCase()
+        .includes(debouncedValue.toLowerCase())
+    );
     setResults(filtered);
   }, [debouncedValue]);
 
@@ -49,12 +49,15 @@ export default function Header1({ coins }: HeaderProps) {
               <Image
                 alt="img"
                 className="avt"
-                src="/images/avt/avt2.jpg"
+                src={logo}
                 width={120}
                 height={120}
               />
             </Link>
-            <div className="search-box box-input-field style-2" style={{ position: "relative" }}>
+            <div
+              className="search-box box-input-field style-2"
+              style={{ position: "relative" }}
+            >
               <a href={`/home-search`} className="icon-search" />
               <input
                 type="text"
@@ -71,8 +74,8 @@ export default function Header1({ coins }: HeaderProps) {
                   onClick={handleClear}
                 />
               )}
-              {searchTerm && (
-                results.length > 0 ? (
+              {searchTerm &&
+                (results.length > 0 ? (
                   <div
                     style={{
                       position: "absolute",
@@ -89,7 +92,7 @@ export default function Header1({ coins }: HeaderProps) {
                   >
                     {results.map((item, idx) => {
                       const coinId = Object.keys(item?.unique_id)[0];
-                      return(
+                      return (
                         <div
                           key={idx}
                           style={{
@@ -97,18 +100,20 @@ export default function Header1({ coins }: HeaderProps) {
                             cursor: "pointer",
                             fontSize: "14px",
                             borderBottom:
-                              idx !== results.length - 1 ? "1px solid #333" : "none",
+                              idx !== results.length - 1
+                                ? "1px solid #333"
+                                : "none",
                           }}
                           onClick={() => {
-                            console
+                            console;
                             setSearchTerm(item);
                             setResults([]);
-                            router.push(`/coin/${item?.name}`)
+                            router.push(`/coin/${item?.name}`);
                           }}
                         >
                           {coinId}
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 ) : (
@@ -124,17 +129,16 @@ export default function Header1({ coins }: HeaderProps) {
                       borderRadius: "4px",
                       marginTop: "4px",
                       zIndex: 1000,
-                      height: '50px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      height: "50px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                       fontSize: "14px",
                     }}
                   >
                     No Result Found
                   </div>
-                )
-              )}
+                ))}
             </div>
           </div>
           <div className="d-flex align-items-center gap-8">
@@ -161,14 +165,16 @@ export default function Header1({ coins }: HeaderProps) {
                 <ul className="mt-12">
                   {notifications.map((notification, index) => (
                     <li className={notification.additionalClasses} key={index}>
-                      <a href="#" className="noti-item bg-menuDark">
+                      <div className="noti-item bg-menuDark">
                         <div
-                          className={`pb-8 ${notification.link ? "line-bt" : ""
-                            }`}
+                          className={`pb-8 ${
+                            notification.link ? "line-bt" : ""
+                          }`}
                         >
                           <p
-                            className={`text-button fw-6 ${notification.isSecondary ? "text-secondary" : ""
-                              }`}
+                            className={`text-button fw-6 ${
+                              notification.isSecondary ? "text-secondary" : ""
+                            }`}
                           >
                             {notification.content}
                           </p>
@@ -176,13 +182,16 @@ export default function Header1({ coins }: HeaderProps) {
                         {notification.link && (
                           <Link
                             className="d-block mt-8"
-                            style={{ color: 'blue', textDecoration: 'underline' }}
+                            style={{
+                              color: "blue",
+                              textDecoration: "underline",
+                            }}
                             href={notification.link}
                           >
                             Click to Check
                           </Link>
                         )}
-                      </a>
+                      </div>
                     </li>
                   ))}
                 </ul>

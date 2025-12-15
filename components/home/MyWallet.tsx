@@ -16,19 +16,54 @@ export default function MyWallet() {
   const [coins, setCoins] = useState<any>();
   const [privacyChecked, setPrivacyChecked] = useState(false);
 
+  const [enrichedAssets, setEnrichedAssets] = useState<any[]>([]);
+  const [totalValue, setTotalValue] = useState<number>(0);
+
   useEffect(() => {
-    const fetchWallets = async () => {
+    const fetchUserAssets = async () => {
       try {
-        const res = await apiClient.get('/api/wallet/get_coin_price');
-        if (res.data.status_code) {
-          setCoins(res.data);
+        const res = await apiClient.get("/api/users/assets");
+        const assetsData = res.data.data || res.data;
+
+        if (Array.isArray(assetsData)) {
+          // Fetch prices
+          const pricesRes = await apiClient.get("/api/crypto/prices");
+          const priceMap: Record<string, any> = {};
+          if (pricesRes.data?.data) {
+            pricesRes.data.data.forEach((p: any) => {
+              priceMap[p.name] = {
+                price: p.current_value,
+                icon: p.icon || "",
+                name: p.name,
+              };
+            });
+          }
+
+          let total = 0;
+          const enriched = assetsData.map((asset: any) => {
+            const priceInfo = priceMap[asset.symbol] || {
+              price: 0,
+              icon: "",
+              name: asset.symbol,
+            };
+            const value = asset.quantity * priceInfo.price;
+            total += value;
+            return {
+              ...asset,
+              price: priceInfo.price,
+              value: value,
+              icon: priceInfo.icon,
+            };
+          });
+
+          setEnrichedAssets(enriched);
+          setTotalValue(total);
         }
       } catch (err) {
-        console.error("Error in API call:", err);
-        // alert(err.response?.data?.msg || "Something went wrong");
+        console.error("Error fetching user assets:", err);
       }
     };
-    fetchWallets();
+    fetchUserAssets();
   }, []);
 
   useEffect(() => {
@@ -91,8 +126,64 @@ export default function MyWallet() {
             <span className="text-primary">My Wallet</span>
           </h5>
           <h1 className="mt-16">
-            <a href="#">${(coins ? coins?.total_value : 0)?.toFixed(2)}</a>
+            <a href="#">
+              $
+              {totalValue.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </a>
           </h1>
+          <div className="mt-20">
+            <h5>Assets</h5>
+            <div className="mt-16">
+              {enrichedAssets.length > 0 ? (
+                enrichedAssets.map((item, index) => (
+                  <div
+                    key={index}
+                    className="d-flex justify-content-between align-items-center mt-12 pb-12 line-bt"
+                  >
+                    <div className="d-flex align-items-center gap-12">
+                      {/* Use icon from price map if available, else generic */}
+                      <div className="image-group relative">
+                        {/* Placeholder or actual image if we had it */}
+                        <div
+                          className="box-round bg-surface d-flex justify-content-center align-items-center"
+                          style={{ width: 40, height: 40 }}
+                        >
+                          <span className="text-large fw-bold">
+                            {item.symbol ? item.symbol[0] : "?"}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <h6 className="text-medium">{item.symbol}</h6>
+                        <p className="text-small text-secondary">
+                          {item.quantity} {item.symbol}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-end">
+                      <h6 className="text-medium">
+                        $
+                        {item.value.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </h6>
+                      <p className="text-small text-secondary">
+                        ${item.price.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-secondary mt-4">
+                  No assets found
+                </div>
+              )}
+            </div>
+          </div>
           <ul className="mt-16 grid-4 m--16">
             <li>
               <Link
@@ -127,13 +218,16 @@ export default function MyWallet() {
                 Send
               </Link>
             </li>
-             <li>
+            <li>
               <Link
                 href={`/swap`}
                 className="tf-list-item d-flex flex-column gap-8 align-items-center"
               >
                 <span className="box-round bg-surface d-flex justify-content-center align-items-center">
-                  <AiOutlineSwap style={{ width: '32px', height: '32px' }} className="text-white" />
+                  <AiOutlineSwap
+                    style={{ width: "32px", height: "32px" }}
+                    className="text-white"
+                  />
                 </span>
                 Swap
               </Link>
@@ -149,7 +243,6 @@ export default function MyWallet() {
                 Backup
               </Link>
             </li> */}
-            
           </ul>
           <ul className="mt-16 grid-4 m--16">
             {/* <li>
@@ -177,7 +270,10 @@ export default function MyWallet() {
                 className="tf-list-item d-flex flex-column gap-8 align-items-center"
               >
                 <span className="box-round bg-surface d-flex justify-content-center align-items-center">
-                  <MdBackup style={{ width: '32px', height: '32px' }} className="text-white" />
+                  <MdBackup
+                    style={{ width: "32px", height: "32px" }}
+                    className="text-white"
+                  />
                 </span>
                 Backup
               </Link>
@@ -188,7 +284,10 @@ export default function MyWallet() {
                 className="tf-list-item d-flex flex-column gap-8 align-items-center"
               >
                 <span className="box-round bg-surface d-flex justify-content-center align-items-center">
-                  <SiBitcoin style={{ width: '32px', height: '32px' }} className="text-white" />
+                  <SiBitcoin
+                    style={{ width: "32px", height: "32px" }}
+                    className="text-white"
+                  />
                 </span>
                 Stock
               </Link>
@@ -210,7 +309,10 @@ export default function MyWallet() {
                 className="tf-list-item d-flex flex-column gap-8 align-items-center"
               >
                 <span className="box-round bg-surface d-flex justify-content-center align-items-center">
-                  <BiCandles style={{ width: '32px', height: '32px' }} className="text-white" />
+                  <BiCandles
+                    style={{ width: "32px", height: "32px" }}
+                    className="text-white"
+                  />
                 </span>
                 Stacking
               </Link>
@@ -246,7 +348,9 @@ export default function MyWallet() {
                 <a
                   href="#"
                   id="btnAllow"
-                  className={`text-center text-button fw-6 p-10 text-primary btn-hide-modal ${!privacyChecked ? "disabled" : ""}`}
+                  className={`text-center text-button fw-6 p-10 text-primary btn-hide-modal ${
+                    !privacyChecked ? "disabled" : ""
+                  }`}
                   data-bs-toggle="modal"
                   data-bs-target="#notiPrivacy"
                   onClick={handleAllow}
@@ -265,7 +369,12 @@ export default function MyWallet() {
                 <h3>Privacy</h3>
                 {/* ... privacy text ... */}
                 <div className="cb-noti mt-12">
-                  <input type="checkbox" className="tf-checkbox" id="cb-ip" onChange={(e) => setPrivacyChecked(e.target.checked)} />
+                  <input
+                    type="checkbox"
+                    className="tf-checkbox"
+                    id="cb-ip"
+                    onChange={(e) => setPrivacyChecked(e.target.checked)}
+                  />
                   <label htmlFor="cb-ip">
                     I agree to the Term of service and Privacy policy
                   </label>
@@ -277,7 +386,8 @@ export default function MyWallet() {
                   data-bs-dismiss="modal"
                   disabled={!privacyChecked}
                   onClick={() => {
-                    if (privacyChecked) localStorage.setItem("allowNotifications", "true");
+                    if (privacyChecked)
+                      localStorage.setItem("allowNotifications", "true");
                   }}
                 >
                   I Accept
@@ -295,20 +405,34 @@ export default function MyWallet() {
           aria-hidden="true"
         >
           <div className="modal-dialog modal-dialog-centered" role="document">
-            <div className="modal-content rounded-lg shadow-lg border-0 text-center" style={{padding:"24px"}}>
-              <AiOutlineCloseCircle className="mx-auto text-red-500" size={80} />
+            <div
+              className="modal-content rounded-lg shadow-lg border-0 text-center"
+              style={{ padding: "24px" }}
+            >
+              <AiOutlineCloseCircle
+                className="mx-auto text-red-500"
+                size={80}
+              />
               <h4>Action Disabled</h4>
               <p className="mt-8 text-large">
                 This Action is disabled Coming Soon.
               </p>
-              <div style={{display:'inline-flex' ,marginTop:'20px', width: 'auto', textAlign: 'center', justifyContent:'center'}}>
-              <button
-                type="button"
-                data-bs-dismiss="modal"
-                style={{width: 'auto'}}
+              <div
+                style={{
+                  display: "inline-flex",
+                  marginTop: "20px",
+                  width: "auto",
+                  textAlign: "center",
+                  justifyContent: "center",
+                }}
               >
-                Okay
-              </button>
+                <button
+                  type="button"
+                  data-bs-dismiss="modal"
+                  style={{ width: "auto" }}
+                >
+                  Okay
+                </button>
               </div>
             </div>
           </div>

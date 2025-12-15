@@ -16,4 +16,5 @@ module.exports = withPWA2({
   typescript: {
     ignoreBuildErrors: true, // ✅ Ignore type errors during build
   },
+  turbopack: {},
 });
