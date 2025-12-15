@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,35 +8,41 @@ import { toast } from "react-toastify";
 import apiClient from "@/lib/axios-config";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 
-type CardColor = "black" | "silver" | "gold" ;
+type CardColor = "black" | "silver" | "gold";
 
-const cardStyles: Record<CardColor, {
-  background: string;
-  circleTopRight: string;
-  circleBottomLeft: string;
-  depositAddress: string;
-  xlmAmount: string;
-}> = {
+const cardStyles: Record<
+  CardColor,
+  {
+    background: string;
+    circleTopRight: string;
+    circleBottomLeft: string;
+    depositAddress: string;
+    xlmAmount: string;
+  }
+> = {
   black: {
-    background: "linear-gradient(135deg, #2b2b2b 0%, #121212 45%, #3a3a3a 100%)",
+    background:
+      "linear-gradient(135deg, #2b2b2b 0%, #121212 45%, #3a3a3a 100%)",
     circleTopRight: "rgba(255,255,255,0.03)",
     circleBottomLeft: "rgba(255,255,255,0.03)",
     depositAddress: "GACMPQFBN6ZRTH4LZZVWB4XEFJEXYAP6U",
     xlmAmount: "$20,000",
   },
   silver: {
-    background: "linear-gradient(135deg, #d5d5dbff 0%, #bcbcbcff 40%, #6f6f70ff 100%)",
+    background:
+      "linear-gradient(135deg, #d5d5dbff 0%, #bcbcbcff 40%, #6f6f70ff 100%)",
     circleTopRight: "rgba(186, 180, 180, 0.7)",
     circleBottomLeft: "rgba(0,0,0,0.06)",
     depositAddress: "K8ZJ4WQPL2MHX7FAN9YVC3DRTSGEB5UO",
     xlmAmount: "$50,000",
   },
   gold: {
-    background: "linear-gradient(135deg, #f6d365 0%, #e8b93a 40%, #b88416 100%)",
+    background:
+      "linear-gradient(135deg, #f6d365 0%, #e8b93a 40%, #b88416 100%)",
     circleTopRight: "rgba(255,255,255,0.12)",
     circleBottomLeft: "rgba(0,0,0,0.06)",
     depositAddress: "R7VQX2LZWFN6PGJ8K3DUB4YAHM5TESC9",
-    xlmAmount: "$1,00,000",
+    xlmAmount: "$100,000",
   },
 };
 
@@ -110,12 +116,18 @@ export default function UserInfo() {
       const maxSize = 8 * 1024 * 1024; // 8MB
       if (!file.type.startsWith("image/")) {
         setFormData((prev) => ({ ...prev, transactionImg: null }));
-        setErrors((prev) => ({ ...prev, transactionImg: "Only image files allowed" }));
+        setErrors((prev) => ({
+          ...prev,
+          transactionImg: "Only image files allowed",
+        }));
         return;
       }
       if (file.size > maxSize) {
         setFormData((prev) => ({ ...prev, transactionImg: null }));
-        setErrors((prev) => ({ ...prev, transactionImg: "File too large (max 8MB)" }));
+        setErrors((prev) => ({
+          ...prev,
+          transactionImg: "File too large (max 8MB)",
+        }));
         return;
       }
       setFormData((prev) => ({ ...prev, transactionImg: file }));
@@ -130,8 +142,10 @@ export default function UserInfo() {
     e.preventDefault();
     const newErrors: any = {};
     if (!formData.phone?.trim()) newErrors.phone = "Phone number is required";
-    if (!formData.transactionId?.trim()) newErrors.transactionId = "Transaction ID is required";
-    if (!formData.transactionImg) newErrors.transactionImg = "Please upload a transaction screenshot";
+    if (!formData.transactionId?.trim())
+      newErrors.transactionId = "Transaction ID is required";
+    if (!formData.transactionImg)
+      newErrors.transactionImg = "Please upload a transaction screenshot";
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
@@ -139,11 +153,17 @@ export default function UserInfo() {
     if (file) {
       const maxSize = 8 * 1024 * 1024;
       if (file.size > maxSize) {
-        setErrors((p: any) => ({ ...p, transactionImg: "File too large (max 8MB)" }));
+        setErrors((p: any) => ({
+          ...p,
+          transactionImg: "File too large (max 8MB)",
+        }));
         return;
       }
       if (!file.type.startsWith("image/")) {
-        setErrors((p: any) => ({ ...p, transactionImg: "Only image files allowed" }));
+        setErrors((p: any) => ({
+          ...p,
+          transactionImg: "Only image files allowed",
+        }));
         return;
       }
     }
@@ -158,9 +178,13 @@ export default function UserInfo() {
 
       if (file) fd.append("image", file, file.name);
 
-      const response = await apiClient.post("/api/auth/add_transaction_card", fd, {
-        headers: { "Content-Type": undefined as any },
-      });
+      const response = await apiClient.post(
+        "/api/auth/add_transaction_card",
+        fd,
+        {
+          headers: { "Content-Type": undefined as any },
+        }
+      );
 
       if (response?.data?.status_code) {
         toast.success("Transaction submitted successfully!");
@@ -221,8 +245,16 @@ export default function UserInfo() {
                 <span className="tag-xs style-2 round-2 red">Unverified</span>
               </div>
             </Link>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              <button className='text-danger' style={{ backgroundColor: 'transparent', border: 'none', padding: 0 }} onClick={handleLogout}>
+            <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+              <button
+                className="text-danger"
+                style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  padding: 0,
+                }}
+                onClick={handleLogout}
+              >
                 Logout
               </button>
               <Link className="arr-right" href={`/profile`}>
@@ -234,8 +266,11 @@ export default function UserInfo() {
         <div className="bg-menuDark tf-container">
           <div className="pt-12 pb-12 mt-4">
             <h5>Card</h5>
-            <div className="mt-3" style={{ display: 'flex', flexDirection: "column" }}>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div
+              className="mt-3"
+              style={{ display: "flex", flexDirection: "column" }}
+            >
+              <div style={{ display: "flex", justifyContent: "center" }}>
                 <div
                   style={{
                     width: "350px",
@@ -247,10 +282,14 @@ export default function UserInfo() {
                     position: "relative",
                     fontFamily: "Arial, sans-serif",
                     overflow: "hidden",
-                    boxShadow: selectedColor === "silver"
-                      ? "0 6px 18px rgba(0,0,0,0.08)"
-                      : "0 6px 18px rgba(0,0,0,0.45)",
-                    border: selectedColor === "silver" ? "1px solid rgba(0,0,0,0.06)" : "none",
+                    boxShadow:
+                      selectedColor === "silver"
+                        ? "0 6px 18px rgba(0,0,0,0.08)"
+                        : "0 6px 18px rgba(0,0,0,0.45)",
+                    border:
+                      selectedColor === "silver"
+                        ? "1px solid rgba(0,0,0,0.06)"
+                        : "none",
                   }}
                 >
                   <div
@@ -262,7 +301,8 @@ export default function UserInfo() {
                       height: "160px",
                       background: current.circleTopRight,
                       borderRadius: "50%",
-                      mixBlendMode: selectedColor === "silver" ? "overlay" : "normal",
+                      mixBlendMode:
+                        selectedColor === "silver" ? "overlay" : "normal",
                     }}
                   ></div>
 
@@ -275,16 +315,25 @@ export default function UserInfo() {
                       height: "120px",
                       background: current.circleBottomLeft,
                       borderRadius: "50%",
-                      mixBlendMode: selectedColor === "silver" ? "overlay" : "normal",
+                      mixBlendMode:
+                        selectedColor === "silver" ? "overlay" : "normal",
                     }}
                   ></div>
 
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between" }}
+                  >
                     <div style={{ fontSize: "15px", lineHeight: "16px" }}>
                       <div style={{ fontWeight: "bold", marginBottom: "6px" }}>
                         BackedByQuantum
                       </div>
-                      <div style={{ fontSize: "12px", fontWeight:600, color: selectedColor === "silver" ? "#111" : "#fff", }}>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          color: selectedColor === "silver" ? "#111" : "#fff",
+                        }}
+                      >
                         Web3-QUANTUM FINANCIAL SYSTEM
                       </div>
                     </div>
@@ -298,7 +347,10 @@ export default function UserInfo() {
                       letterSpacing: "2px",
                       marginTop: "36px",
                       color: selectedColor === "silver" ? "#111" : "#fff",
-                      textShadow: selectedColor === "silver" ? "none" : "0 1px 0 rgba(0,0,0,0.3)",
+                      textShadow:
+                        selectedColor === "silver"
+                          ? "none"
+                          : "0 1px 0 rgba(0,0,0,0.3)",
                     }}
                   >
                     XXXX- XXXX- XXXX- XXXX
@@ -320,17 +372,20 @@ export default function UserInfo() {
                 </div>
               </div>
 
-              <div style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: 16,
-                marginTop: 16,
-                alignItems: "center",
-              }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 16,
+                  marginTop: 16,
+                  alignItems: "center",
+                }}
+              >
                 {(["black", "silver", "gold"] as CardColor[]).map((c) => {
                   const isSelected = selectedColor === c;
                   const previewBg = cardStyles[c].background;
-                  const label = c === "gold" ? "Gold" : c === "silver" ? "Silver" : "Black";
+                  const label =
+                    c === "gold" ? "Gold" : c === "silver" ? "Silver" : "Black";
                   return (
                     <label
                       key={c}
@@ -357,23 +412,39 @@ export default function UserInfo() {
                           height: 40,
                           borderRadius: 8,
                           background: previewBg,
-                          border: isSelected ? "3px solid rgba(255,255,255,0.95)" : "2px solid rgba(255,255,255,0.12)",
-                          boxShadow: isSelected ? "0 6px 18px rgba(255,255,255,0.12)" : "0 4px 12px rgba(0,0,0,0.2)",
+                          border: isSelected
+                            ? "3px solid rgba(255,255,255,0.95)"
+                            : "2px solid rgba(255,255,255,0.12)",
+                          boxShadow: isSelected
+                            ? "0 6px 18px rgba(255,255,255,0.12)"
+                            : "0 4px 12px rgba(0,0,0,0.2)",
                           transition: "all 150ms ease",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                         }}
                       />
-                      <div style={{ marginTop: 6, fontSize: 12, color: "#cfcfcf" }}>{label}</div>
+                      <div
+                        style={{ marginTop: 6, fontSize: 12, color: "#cfcfcf" }}
+                      >
+                        {label}
+                      </div>
                     </label>
                   );
                 })}
               </div>
 
-              <div style={{ display: "flex", marginTop: "20px", justifyContent: 'center' }}>
+              <div
+                style={{
+                  display: "flex",
+                  marginTop: "20px",
+                  justifyContent: "center",
+                }}
+              >
                 <form onSubmit={handleSubmit}>
-                  <label style={{ marginBottom: "10px" }}>Deposit Address</label>
+                  <label style={{ marginBottom: "10px" }}>
+                    Deposit Address
+                  </label>
                   <input
                     type="text"
                     value={formData.depositAddress}
@@ -401,7 +472,9 @@ export default function UserInfo() {
                       fontWeight: "bold",
                     }}
                   />
-                  <h5 style={{ marginTop: "20px", marginBottom: "20px" }}>Shipping Details</h5>
+                  <h5 style={{ marginTop: "20px", marginBottom: "20px" }}>
+                    Shipping Details
+                  </h5>
                   <input
                     type="text"
                     name="name"
@@ -431,7 +504,7 @@ export default function UserInfo() {
                       border: "1px solid #ccc",
                     }}
                   />
-                  <div style={{ marginBottom: "10px", }}>
+                  <div style={{ marginBottom: "10px" }}>
                     <input
                       type="text"
                       name="phone"
@@ -445,10 +518,20 @@ export default function UserInfo() {
                         border: "1px solid #ccc",
                       }}
                     />
-                    {errors.phone && <p style={{ color: "red", fontSize: "12px", marginTop: "10px" }}>{errors.phone}</p>}
+                    {errors.phone && (
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "12px",
+                          marginTop: "10px",
+                        }}
+                      >
+                        {errors.phone}
+                      </p>
+                    )}
                   </div>
 
-                  <div style={{ marginBottom: "10px", }}>
+                  <div style={{ marginBottom: "10px" }}>
                     <input
                       type="text"
                       name="transactionId"
@@ -462,10 +545,28 @@ export default function UserInfo() {
                         border: "1px solid #ccc",
                       }}
                     />
-                    {errors.transactionId && <p style={{ color: "red", fontSize: "12px", marginTop: "10px" }}>{errors.transactionId}</p>}
+                    {errors.transactionId && (
+                      <p
+                        style={{
+                          color: "red",
+                          fontSize: "12px",
+                          marginTop: "10px",
+                        }}
+                      >
+                        {errors.transactionId}
+                      </p>
+                    )}
                   </div>
 
-                  <div style={{ color: "white", fontSize: "12px", display: "flex", flexDirection: "column", marginBottom: "10px" }}>
+                  <div
+                    style={{
+                      color: "white",
+                      fontSize: "12px",
+                      display: "flex",
+                      flexDirection: "column",
+                      marginBottom: "10px",
+                    }}
+                  >
                     <label className="pb-2">
                       Attach screenshot of transaction
                     </label>
@@ -475,7 +576,11 @@ export default function UserInfo() {
                       onChange={handleChange}
                       style={{ marginBottom: "10px" }}
                     />
-                    {errors.transactionImg && <p style={{ color: "red", fontSize: "12px" }}>{errors.transactionImg}</p>}
+                    {errors.transactionImg && (
+                      <p style={{ color: "red", fontSize: "12px" }}>
+                        {errors.transactionImg}
+                      </p>
+                    )}
                   </div>
 
                   <div style={{ marginBottom: "10px" }}>
@@ -502,7 +607,7 @@ export default function UserInfo() {
                       cursor: "pointer",
                       fontWeight: "bold",
                       width: "100%",
-                      marginTop: "20px"
+                      marginTop: "20px",
                     }}
                   >
                     Pre-Order
@@ -538,7 +643,10 @@ export default function UserInfo() {
             </ul>
           </div>
         </div>
-        <div className="bg-menuDark tf-container" style={{ marginBottom: "72px" }}>
+        <div
+          className="bg-menuDark tf-container"
+          style={{ marginBottom: "72px" }}
+        >
           <div className="pt-12 pb-12 mt-4">
             <h5>Exchange</h5>
             <ul className="mt-16 grid-3 gap-12">
@@ -641,17 +749,31 @@ export default function UserInfo() {
           aria-hidden="true"
         >
           <div className="modal-dialog modal-dialog-centered" role="document">
-            <div className="modal-content rounded-lg shadow-lg border-0 text-center" style={{ padding: "24px" }}>
-              <AiOutlineCloseCircle className="mx-auto text-red-500" size={80} />
+            <div
+              className="modal-content rounded-lg shadow-lg border-0 text-center"
+              style={{ padding: "24px" }}
+            >
+              <AiOutlineCloseCircle
+                className="mx-auto text-red-500"
+                size={80}
+              />
               <h4>Action Disabled</h4>
               <p className="mt-8 text-large">
                 This Action is disabled Coming Soon.
               </p>
-              <div style={{ display: 'inline-flex', marginTop: '20px', width: 'auto', textAlign: 'center', justifyContent: 'center' }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  marginTop: "20px",
+                  width: "auto",
+                  textAlign: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <button
                   type="button"
                   data-bs-dismiss="modal"
-                  style={{ width: 'auto' }}
+                  style={{ width: "auto" }}
                 >
                   Okay
                 </button>
@@ -695,9 +817,9 @@ export default function UserInfo() {
             </span>
           </a>
         </div> */}
-      </div >
+      </div>
       {/*cryptocurrency */}
-      < div className="modal fade modalRight" id="cryptocurrency" >
+      <div className="modal fade modalRight" id="cryptocurrency">
         <div className="modal-dialog" role="document">
           <div className="modal-content">
             <div className="header fixed-top bg-surface d-flex justify-content-center align-items-center">
@@ -911,7 +1033,7 @@ export default function UserInfo() {
             </div>
           </div>
         </div>
-      </div >
+      </div>
     </>
   );
 }

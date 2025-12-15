@@ -165,7 +165,7 @@ export default function Header1({ coins }: HeaderProps) {
                 <ul className="mt-12">
                   {notifications.map((notification, index) => (
                     <li className={notification.additionalClasses} key={index}>
-                      <a href="#" className="noti-item bg-menuDark">
+                      <div className="noti-item bg-menuDark">
                         <div
                           className={`pb-8 ${
                             notification.link ? "line-bt" : ""
@@ -191,7 +191,7 @@ export default function Header1({ coins }: HeaderProps) {
                             Click to Check
                           </Link>
                         )}
-                      </a>
+                      </div>
                     </li>
                   ))}
                 </ul>

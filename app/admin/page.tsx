@@ -11,10 +11,39 @@ export default function AdminPage() {
 
   console.log("Users on admin page:", users);
 
+  const [prices, setPrices] = React.useState<Record<string, number>>({});
+  const [loadingPrices, setLoadingPrices] = React.useState(true);
+
+  // Imports needed if not already present, but apiClient is usually in a lib
+  // We need to import apiClient. It wasn't imported in the original file.
+  // Wait, I need to check imports.
+
+  React.useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const { default: apiClient } = await import("@/lib/axios-config");
+        const res = await apiClient.get("/api/crypto/prices");
+        if (res.data?.data) {
+          const priceMap: Record<string, number> = {};
+          res.data.data.forEach((p: any) => {
+            priceMap[p.name] = p.current_value;
+          });
+          setPrices(priceMap);
+        }
+      } catch (error) {
+        console.error("Failed to fetch prices:", error);
+      } finally {
+        setLoadingPrices(false);
+      }
+    };
+    fetchPrices();
+  }, []);
+
   // Helper to calculate total wallet balance
   const calculateBalance = (portfolio: PortfolioItem[]) => {
     return portfolio.reduce((acc, item) => {
-      const price = MARKET_PRICES[item.symbol] || 0;
+      // Use fetched price, fallback to MARKET_PRICES (if kept) or 0
+      const price = prices[item.symbol] ?? MARKET_PRICES[item.symbol] ?? 0;
       return acc + item.quantity * price;
     }, 0);
   };
