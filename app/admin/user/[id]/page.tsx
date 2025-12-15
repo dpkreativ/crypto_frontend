@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import apiClient from "@/lib/axios-config";
 
 import Navbar from "@/components/Navbar";
 import { User, MARKET_PRICES } from "@/data/adminData";
@@ -25,6 +26,24 @@ export default function UserDetailPage() {
   const [pendingDeletions, setPendingDeletions] = useState<Set<string>>(
     new Set()
   );
+  const [cryptoList, setCryptoList] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchCryptos = async () => {
+      try {
+        const res = await apiClient.get("/api/crypto/prices");
+        if (res.data && res.data.success && Array.isArray(res.data.data)) {
+          setCryptoList(res.data.data);
+          if (res.data.data.length > 0) {
+            setSelectedToken(res.data.data[0].name);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch crypto prices:", error);
+      }
+    };
+    fetchCryptos();
+  }, []);
 
   /* --------------------------------------------------
      Load user from context
@@ -41,6 +60,12 @@ export default function UserDetailPage() {
   if (isLoading || !user) {
     return <div className="tw-text-white tw-p-8">Loading user...</div>;
   }
+
+  // Helper to get price for a symbol from fetched list or static fallback
+  const getPrice = (symbol: string) => {
+    const crypto = cryptoList.find((c) => c.name === symbol);
+    return crypto ? crypto.current_value : MARKET_PRICES[symbol] || 0;
+  };
 
   /* --------------------------------------------------
      Handlers
@@ -118,7 +143,7 @@ export default function UserDetailPage() {
 
   const calculateTotalValue = () =>
     user.portfolio.reduce((sum, item) => {
-      const price = MARKET_PRICES[item.symbol] || 0;
+      const price = getPrice(item.symbol);
       return sum + item.quantity * price;
     }, 0);
 
@@ -137,11 +162,11 @@ export default function UserDetailPage() {
           ← Back to Dashboard
         </Link>
 
+        {/* ... Header ... */}
         <div className="tw-flex tw-justify-between tw-items-center tw-mb-8">
           <h1 className="tw-text-3xl tw-font-bold tw-text-primary-green">
             Manage Portfolio: {user.name}
           </h1>
-
           <div className="tw-flex tw-items-center tw-gap-6">
             <div className="tw-text-xl">
               <span className="tw-text-gray-400">Total Value: </span>
@@ -153,7 +178,6 @@ export default function UserDetailPage() {
                 })}
               </span>
             </div>
-
             {hasChanges && (
               <button
                 onClick={handleSave}
@@ -172,13 +196,17 @@ export default function UserDetailPage() {
             <select
               value={selectedToken}
               onChange={(e) => setSelectedToken(e.target.value)}
-              className="tw-bg-dark-background tw-border tw-border-gray-600 tw-rounded tw-px-4 tw-py-2"
+              className="tw-bg-dark-background tw-border tw-border-gray-600 tw-rounded tw-px-4 tw-py-2 tw-text-white"
             >
-              {Object.keys(MARKET_PRICES).map((symbol) => (
-                <option key={symbol} value={symbol}>
-                  {symbol}
-                </option>
-              ))}
+              {cryptoList.length > 0 ? (
+                cryptoList.map((crypto) => (
+                  <option key={crypto.id} value={crypto.name}>
+                    {crypto.name} (${crypto.current_value.toLocaleString()})
+                  </option>
+                ))
+              ) : (
+                <option disabled>Loading cryptos...</option>
+              )}
             </select>
 
             <input
@@ -216,7 +244,7 @@ export default function UserDetailPage() {
               </thead>
               <tbody>
                 {user.portfolio.map((item) => {
-                  const price = MARKET_PRICES[item.symbol] || 0;
+                  const price = getPrice(item.symbol);
                   return (
                     <tr key={item.symbol}>
                       <td className="tw-p-4">{item.symbol}</td>
@@ -234,7 +262,11 @@ export default function UserDetailPage() {
                         />
                       </td>
                       <td className="tw-p-4 tw-text-right">
-                        ${(item.quantity * price).toFixed(2)}
+                        $
+                        {(item.quantity * price).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </td>
                       <td className="tw-p-4 tw-text-center">
                         <button
